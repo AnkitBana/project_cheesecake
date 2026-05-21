@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: cheesecake-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cheesecake
+      POSTGRES_PASSWORD: cheesecake_dev_password
+      POSTGRES_DB: cheesecake_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - cheesecake-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cheesecake"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: cheesecake-redis
+    restart: unless-stopped
+    command: redis-server --requirepass cheesecake_redis_password
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - cheesecake-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # API Server (optional - for containerized development)
+  api:
+    build:
+      context: ./packages/api
+      dockerfile: Dockerfile
+    container_name: cheesecake-api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_URL: postgresql://cheesecake:cheesecake_dev_password@postgres:5432/cheesecake_db
+      REDIS_URL: redis://:cheesecake_redis_password@redis:6379
+      JWT_ACCESS_SECRET: your-super-secret-jwt-access-key-change-in-production
+      JWT_REFRESH_SECRET: your-super-secret-jwt-refresh-key-change-in-production
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./packages/api:/app
+      - /app/node_modules
+    networks:
+      - cheesecake-network
+    profiles:
+      - full-stack
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  cheesecake-network:
+    driver: bridge
+
+# Made with Bob

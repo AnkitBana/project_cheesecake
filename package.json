@@ -1,0 +1,36 @@
+{
+  "name": "cheesecake-ecommerce",
+  "version": "1.0.0",
+  "description": "Full-stack e-commerce platform for cheesecakes",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:client\"",
+    "dev:api": "npm run dev --workspace=@cheesecake/api",
+    "dev:client": "npm run dev --workspace=@cheesecake/client",
+    "build": "npm run build --workspaces",
+    "build:api": "npm run build --workspace=@cheesecake/api",
+    "build:client": "npm run build --workspace=@cheesecake/client",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "prisma:generate": "npm run prisma:generate --workspace=@cheesecake/api",
+    "prisma:migrate": "npm run prisma:migrate --workspace=@cheesecake/api",
+    "prisma:studio": "npm run prisma:studio --workspace=@cheesecake/api"
+  },
+  "keywords": [
+    "ecommerce",
+    "cheesecake",
+    "react",
+    "typescript",
+    "express",
+    "postgresql"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
