@@ -31,6 +31,8 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.59.4",
+    "@typescript-eslint/parser": "^8.59.4",
     "concurrently": "^8.2.2"
   }
 }
